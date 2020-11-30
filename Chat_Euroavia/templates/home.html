@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Home {% endblock %}
+
+{% block logout %}
+<a class="nav-link" href="login">Log out</a>
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <p style="padding-top: 10px; text-align: center">You are logged in as <b>{{user}}</b></p>
+    </div>
+    <div class="jumbotron">
+        <div class="row">
+            <div class="col-sm-8" id="display-message-section" style="overflow: auto; max-height: 490px">
+                {% for message in messages %}
+                <p><b>{{ message.username }}:</b> {{ message.msg }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="col-sm-4">
+                <form action="#" method="post">
+                    <textarea name="message" id="user_message" style="width: 100%" rows="6"></textarea>
+                    <button type="button" id="send_message">SEND</button>
+                </form>
+                <img class="img-responsive" src="{{ url_for('static', filename='Images/euroavia_logo.png') }}" style="display: block; max-width: 100%; margin-left: auto; margin-right: auto">
+            </div>
+        </div>
+    </div>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+    <script type="text/javascript" charset="utf-8">
+        const username=`{{ user }}`;
+        const comm = ": "
+        var socket = io();
+
+        socket.on('message', data => {
+            const p = document.createElement('p');
+            const span_username = document.createElement('span');
+            const bold_username = document.createElement('b')
+            const br = document.createElement('br');
+
+            span_username.innerHTML = data.username;
+            bold_username.innerHTML = data.username + ": ";
+
+            p.innerHTML = bold_username.outerHTML + data.msg;
+            document.querySelector('#display-message-section').append(p)
+
+        });
+
+
+        document.querySelector('#send_message').onclick = () => {
+            socket.send({'msg': document.querySelector('#user_message').value,
+                    'username': username});
+        }
+    </script>
+
+{% endblock %}
